@@ -11,8 +11,6 @@
 
 `quality` - отдаваемое качество видео. `"1"` - одно качество начиная с самого высокого, `"-2"` - два качества начиная с самого низкого;
 
-_* При встраивании плеера Rutube в среде Samsung Smart TV лучше отдавать одно самое высокое качество, так как при автоматическом переключении качества ресайз картинки может происходить некорректно._
-
 Пример встраивания плеера Rutube с параметрами:
 ```html
 <iframe width="720" height="405" src="//rutube.ru/play/embed/7163336?quality=1&platform=samsung-smarttv" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
