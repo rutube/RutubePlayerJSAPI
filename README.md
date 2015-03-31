@@ -1,68 +1,154 @@
-RutubePlayerJSAPI
-=================
+#Rutube Player API
 
-Общий принцип работы полностью схож с принципом работы YouTube-плеера ( повторил функциональность для более простого встраивания другими сайтами ).
-
-Для использования JS-вызовов необходимо *предварительно* сообщить плееру о заинтересованности испольозвания JS-API плеера, иначе эта функциональность будет отключена.
-
-При создании объекта плеера на странице передать во FlashVariables параметры:
-
-- **playerId** - идентификатор плеера, для внуреннего использования, в случае если на странице присутствует несколько плееров
-- **initJsCallback**- имя метода, который вызывает плеер для оповещения скриптов о полной загрузке и доступности вызова методов плеера (*callback на первичную готовность плеера*).
-- **stateJsCallback** - имя метода, который вызывает плеер для оповещения скриптов при смене состояния плеера (*callback при каждой смене состояния плеера*).
-- **errorJsCallback** - имя метода, который вызывает плеер для оповещения скриптов при ошибке (*callback в случае ошибки плеера*).
-- **playbackCompleteJsCallback** - имя метода, который вызывает плеер для оповещения скриптов об окончании проигрывания текущего ролика (*callback на оповещение проигрывания ролика*).
-
-Например:
-
-```
-<param name="flashVars" value="initJsCallback=window.playerAdapter.onready&amp;
-stateJsCallback=window.playerAdapter.changeState&amp;
-errorJsCallback=window.playerAdapter.errorState&amp;
-playbackCompleteJsCallback=window.playerAdapter.playComplete">
+Пример встраивания плеера Rutube на HTML-страницу:
+```html
+<iframe width="720" height="405" src="//rutube.ru/play/embed/7163336" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
 ```
 
+Опционально, в адресную строку можно передать параметры:
 
-####Поддерживаемые плеером методы.
+`bmstart` - время старта, в секундах;
 
-Метод | Описание | Передаваемые параметры | Возвращаемые параметры |
------------- | ------------- | ------------ |------------ |
-isAvalible| возвращает доступен ли плеер или нет | |Boolean |
-cleanHeap| принудительно вызывает сборщик мусора у плеера | | |
-playVideo| запуск проигрывания видео | | |
-pauseVideo| остановка на паузу проигрываемого видео | | |
-stopVideo| остановка проигрываемого видео | | |
-seekTo| перемотка видео на заданную позицию, в секундах | позиция в секундах | |
-canPlay| может ли плеер проиграть загруженный контент | | Boolean |
-loadVideoByHash| загрузить видео, передав в качестве параметра хеш ролика | хеш ролика, строка | |
-isLoaded| проверить, загружен ли ролик в плеер или нет | | Boolean |
-isCompleted| свойство позволяет проверить завершилось ли проигрывание ролика | | |
-getMetaInfo| получить метаинформацию о ролика, в формате JSON. временно недоступно | | Объект в виде JSON |
-mute| выключить звук | | |
-unMute| включить звук | | |
-isMuted| выключен ли звук | | Boolean |
-setVolume| установить уровень звука | целое число, от 0 до 100 | |
-getVolume| получить уровень звука | | целое число, от 0 до 100 |
-getCurrentTime| текущее время проигрывания | | дробное число |
-getDuration| длительность проигрываемого ролика | | дробное число |
-getPlayerState| получить текущее состояние плеера ( playing, paused, stopped, loading ) | | строка-состояние плеера |
-addListeners| добавление методов обратного вызова для получения обратной связи от плеера. Передается объект со свойствами ,в которых строками указаны методы обратного вызова. | error, playerState | Boolean |
+`quality` - отдаваемое качество видео. `"1"` - одно качество начиная с самого высокого, `"-2"` - два качества начиная с самого низкого;
 
+_* При встраивании плеера Rutube в среде Samsung Smart TV лучше отдавать одно самое высокое качество, так как при автоматическом переключении качества ресайз картинки может происходить некорректно._
 
-####Возможные состояния плеера
+Пример встраивания плеера Rutube с параметрами:
+```html
+<iframe width="720" height="405" src="//rutube.ru/play/embed/7163336?quality=1&platform=samsung-smarttv" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
+```
 
-Состояние | Описание |
-----|-----|
-uninitialized |Плеер неинициализирован. Нет проигрываемого контента. |
-loading|Контент загружается в плеер|
-ready|Плеер готов к произгрыванию загруженного контента.|
-playing|Проигрывание|
-paused|Плеер на паузе|
-buffering|Буфферизирование|
-playbackError|Ошибка проигрывания|
+Управлять загруженным плеером можно с помощью специального API, реализация которого основана на интерфейсе (postMessage)[https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage].
 
+## Отправка команд плееру
 
- 
- 
- 
- 
+_Здесь и далее все примеры приведены на VanillaJS, однако, существуют сторонние плагины, упрощающие работу с интерфейсом postMessage._
+
+Пример отправки сообщения плееру:
+```javascript
+var player = document.getElementById('my-player');
+player.contentWindow.postMessage(JSON.stringify({
+    type: 'some:method',
+    data: 'some data'
+}), '*');
+```
+
+События, которые можно отправить плееру:
+```javascript
+// проиграть видео
+{
+    type: 'player:play',
+    data: {}
+}
+```
+
+```javascript
+// пауза
+{
+    type: 'player:pause',
+    data: {}
+}
+```
+
+```javascript
+// стоп (сброс буфера видео и рекламы)
+{
+    type: 'player:stop',
+    data: {}
+}
+```
+
+```javascript
+// установка текущего времени проигрывания, в секундах
+{
+    type: 'player:setCurrentTime',
+    data: {
+        time: 20
+    }
+}
+```
+
+```javascript
+// смена ролика
+{
+    type: 'player:changeVideo',
+    data: {
+        id: 'xyz123' // id ролика
+    }
+}
+```
+
+С помощью этого метода также можно загрузить в плеер скрытый ролик, передав параметр `"p"` (приватный ключ):
+```javascript
+{
+    type: 'player:changeVideo',
+    data: {
+        params: {
+            hash: 'xyz123', // id ролика
+            p: 'abc789'
+        }
+    }
+}
+```
+
+И загрузить видео сразу в самом высоком качестве (без автоматического переключения), передавая параметр `"quality"` со значением `"1"`:
+```javascript
+{
+    type: 'player:changeVideo',
+    data: {
+        params: {
+            hash: 'xyz123', // id ролика
+            quality: 1
+        }
+    }
+}
+```
+
+## Подписка на сообщения плеера
+
+Пример подписки на сообщения от плеера:
+```javascript
+window.addEventListener('message', function (event) {
+    var message = JSON.parse(event.data);
+    console.log(message.type); // some type
+    switch (message.type) {
+        case 'player:changeState':
+            console.log(message.data.state); // текущее состояние плеера
+            break;
+    };
+});
+```
+
+Шаблон приходящих сообщений:
+```javascript
+{
+    type: 'event:type',
+    data: 'some data'
+}
+```
+
+Типы приходящих сообщений (начинаются с префикса player):
+
+`player:ready` - плеер загружен готов к проигрыванию (отправляется один раз, при вставке плеера на страницу);
+
+`player:changeState` - изменение состояния плеера;
+
+Объект `data` в этом случае cодержит параметры:
+
+- `state` - состояние плеера: _playing_, _paused_, _stopped_, _lockScreenOn (появление заглушки)_, _lockScreenOff (снятие заглушки)_;
+
+- `isLicensed` - флаг лицензионности ролика.
+
+`player:currentTime` - текущее вермя проигрывания ролика;
+
+Объект `data` в этом случае cодержит параметр _time_ со значением времени в секундах.
+
+`player:rollState` - проигрывание рекламы в эмбеде;
+
+Объект `data` в этом случае cодержит параметры со значениями:
+
+- `rollState` - тип рекламного ролика: _playPreroll_, _playPausebanner_, _playPostroll_, _playMidroll_, _playPauseroll_, _playOverlay_;
+
+- `state` - состояние рекламного ролика: _play_, _complete_.
+
+`player:playComplete` - событие, отправляемое в момент когда ролик завершил проигрывание.
