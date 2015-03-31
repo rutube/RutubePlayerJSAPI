@@ -18,7 +18,7 @@ _* При встраивании плеера Rutube в среде Samsung Smart
 <iframe width="720" height="405" src="//rutube.ru/play/embed/7163336?quality=1&platform=samsung-smarttv" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
 ```
 
-Управлять загруженным плеером можно с помощью специального API, реализация которого основана на интерфейсе (postMessage)[https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage].
+Управлять загруженным плеером можно с помощью специального API, реализация которого основана на интерфейсе [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage).
 
 ## Отправка команд плееру
 
