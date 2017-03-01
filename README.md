@@ -18,11 +18,13 @@
 
 Управлять загруженным плеером можно с помощью специального API, реализация которого основана на интерфейсе [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage).
 
-## Отправка команд плееру
+
+## Управление проигрыванием
 
 _Здесь и далее все примеры приведены на VanillaJS, однако, существуют сторонние плагины, упрощающие работу с интерфейсом postMessage._
 
-Пример отправки сообщения плееру:
+
+### Пример отправки сообщения плееру:
 ```javascript
 var player = document.getElementById('my-player');
 player.contentWindow.postMessage(JSON.stringify({
@@ -31,15 +33,19 @@ player.contentWindow.postMessage(JSON.stringify({
 }), '*');
 ```
 
-События, которые можно отправить плееру:
+### Команды, которые можно отправить плееру:
+
+player:play
+Начать проигрывание видео
 ```javascript
-// проиграть видео
 {
     type: 'player:play',
     data: {}
 }
 ```
 
+player:pause
+Поставить видео на паузу
 ```javascript
 // пауза
 {
@@ -48,16 +54,18 @@ player.contentWindow.postMessage(JSON.stringify({
 }
 ```
 
+player:stop
+Закончить цикл проигрывания (сброс буфера видео и рекламы)
 ```javascript
-// стоп (сброс буфера видео и рекламы)
 {
     type: 'player:stop',
     data: {}
 }
 ```
 
+player:setCurrentTime
+Переход к определенной секунде видео
 ```javascript
-// установка текущего времени проигрывания, в секундах
 {
     type: 'player:setCurrentTime',
     data: {
@@ -66,8 +74,23 @@ player.contentWindow.postMessage(JSON.stringify({
 }
 ```
 
+player:relativelySeek
+Перемотать видео на определенное количество секунд вперед или назад. 
+time - количество секунд для перемотки
+- (знак минус) - перемотка назад 
++ (знак плюс) - вперед
 ```javascript
-// смена ролика
+{
+    type: 'player:relativelySeek',
+    data: {
+        time: +20
+    }
+}
+```
+
+player:changeVideo
+Загрузить в плеер другое видео
+```javascript
 {
     type: 'player:changeVideo',
     data: {
@@ -102,7 +125,45 @@ player.contentWindow.postMessage(JSON.stringify({
 }
 ```
 
-## Подписка на сообщения плеера
+player:mute
+Выключение звука
+```javascript
+{
+    type: 'player:mute'
+}
+```
+
+player:unMute
+Включение звука
+```javascript
+{
+    type: 'player:unMute'
+}
+```
+
+player:setSkinColor
+Изменить цветовую схему скина
+```javascript
+{
+    type: 'player:setSkinColor',
+    data: {
+        params: {
+            color: '393939' // цвет в RGB, HEX (без решетки)
+        }
+    }
+}
+```
+
+player:remove
+Удаление плеера, освобождение используемых ресурсов. Рекомендуется вызывать перед удалением эмбеда со страницы. 
+```javascript
+{
+    type: 'player:remove'
+}
+```
+
+
+## Отслеживание статуса проигрывания
 
 Пример подписки на сообщения от плеера:
 ```javascript
@@ -117,7 +178,7 @@ window.addEventListener('message', function (event) {
 });
 ```
 
-Шаблон приходящих сообщений:
+### Шаблон приходящих сообщений:
 ```javascript
 {
     type: 'event:type',
@@ -125,28 +186,105 @@ window.addEventListener('message', function (event) {
 }
 ```
 
-Типы приходящих сообщений (начинаются с префикса player):
+### Сообщения:
 
-`player:ready` - плеер загружен готов к проигрыванию (отправляется один раз, при вставке плеера на страницу);
+player:ready
+Плеер загружен готов к проигрыванию (отправляется один раз, при вставке плеера на страницу):
+```javascript
+{
+	data: {},
+	type: 'player:ready'
+}
+```
+player:changeState
+Изменилось состояние поигрывания.
+Параметр:
+* state - текущее состояние плеера
+Возможные значения параметра state:
+* playing - плеер перешел в состояние проигрывания видео
+* paused - видео поставлено на паузу
+* stopped - плеер закончил проигрывание видео
+* lockScreenOn - появление заглушки в плеере
+* lockScreenOff - снятие заглушки в плеере
+```javascript
+{
+	data: {
+		state: 'playing',
+		isLicensed: true
+	},
+	type: 'player:changeState'
+}
+```
+player:currentTime
+Информация о текущем времени проигрывания ролика.
+Параметры
+* time - текущее время проигрывания ролика, в секундах
+```javascript
+{
+	data: {
+		time: 4.009
+	},
+	type: 'player:currentTime'
+}
+```
+player:rollState
+Информация о факте и статусе проигрывания рекламы в плеере.
+Параметры
+* rollState - тип проигрываемой рекламы
+* state - состояние проигрывания рекламного ролика
+* guid - уникальный идентификатор сессии плеера
+Возможные значения параметра rollState:
+* Preroll - преролл
+* Pausebanner - БНП (баннер на паузе)
+* Postroll - постролл
+* Midroll - мидролл
+* Pauseroll - паузролл
+* Overlay - оверлей
+Возможные значения параметра state:
+* play - плеер перешел в состояние проигрывания рекламы
+* complete - плеер закончил проигрывание рекламы\ошибка\нет рекламы
+```javascript
+{
+    data: {
+        rollState: 'playPreroll',
+        state: 'play',
+        guid: 'BFEE79FD-F328-86A1-83F7-58489FF4AEB4'
+    },
+    type: 'player:rollState'
+}
+```
 
-`player:changeState` - изменение состояния плеера;
+player:changeFullscreen
+Переход/выход из фуллскрина
+```javascript
+{
+    data: {
+        isFullscreen:true/false
+    },
+    type: 'player:changeFullscreen'
+}
+```
 
-Объект `data` в этом случае cодержит параметры:
+player:error
+Ошибка во время проигрывания
+Параметры
+* code - код ошибки проигрывания
+* text - текст ошибки
+```javascript
+{
+    data: {
+        code: '404',
+        text: 'Все пропало',
+    },
+    type: 'player:error'
+}
+```
 
-- `state` - состояние плеера: _playing_, _paused_, _stopped_, _lockScreenOn (появление заглушки)_, _lockScreenOff (снятие заглушки)_;
-
-- `isLicensed` - флаг лицензионности ролика.
-
-`player:currentTime` - текущее вермя проигрывания ролика;
-
-Объект `data` в этом случае cодержит параметр _time_ со значением времени в секундах.
-
-`player:rollState` - проигрывание рекламы в эмбеде;
-
-Объект `data` в этом случае cодержит параметры со значениями:
-
-- `rollState` - тип рекламного ролика: _playPreroll_, _playPausebanner_, _playPostroll_, _playMidroll_, _playPauseroll_, _playOverlay_;
-
-- `state` - состояние рекламного ролика: _play_, _complete_.
-
-`player:playComplete` - событие, отправляемое в момент когда ролик завершил проигрывание.
+player:playComplete
+Событие окончания проигрывания (видео и рекламы). Переход плеера в эндскрин.
+```javascript
+{
+	data: {},
+	type: 'player:playComplete'
+}
+```
