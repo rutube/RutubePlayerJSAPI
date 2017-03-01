@@ -35,7 +35,7 @@ player.contentWindow.postMessage(JSON.stringify({
 
 ### Команды, которые можно отправить плееру:
 
-player:play
+*player:play*
 Начать проигрывание видео
 ```javascript
 {
@@ -44,7 +44,7 @@ player:play
 }
 ```
 
-player:pause
+*player:pause*
 Поставить видео на паузу
 ```javascript
 // пауза
@@ -54,7 +54,7 @@ player:pause
 }
 ```
 
-player:stop
+*player:stop*
 Закончить цикл проигрывания (сброс буфера видео и рекламы)
 ```javascript
 {
@@ -63,7 +63,7 @@ player:stop
 }
 ```
 
-player:setCurrentTime
+*player:setCurrentTime*
 Переход к определенной секунде видео
 ```javascript
 {
@@ -74,7 +74,7 @@ player:setCurrentTime
 }
 ```
 
-player:relativelySeek
+*player:relativelySeek*
 Перемотать видео на определенное количество секунд вперед или назад. 
 time - количество секунд для перемотки
 - (знак минус) - перемотка назад 
@@ -88,7 +88,7 @@ time - количество секунд для перемотки
 }
 ```
 
-player:changeVideo
+*player:changeVideo*
 Загрузить в плеер другое видео
 ```javascript
 {
@@ -125,7 +125,7 @@ player:changeVideo
 }
 ```
 
-player:mute
+*player:mute*
 Выключение звука
 ```javascript
 {
@@ -133,7 +133,7 @@ player:mute
 }
 ```
 
-player:unMute
+*player:unMute*
 Включение звука
 ```javascript
 {
@@ -141,7 +141,7 @@ player:unMute
 }
 ```
 
-player:setSkinColor
+*player:setSkinColor*
 Изменить цветовую схему скина
 ```javascript
 {
@@ -154,7 +154,7 @@ player:setSkinColor
 }
 ```
 
-player:remove
+*player:remove*
 Удаление плеера, освобождение используемых ресурсов. Рекомендуется вызывать перед удалением эмбеда со страницы. 
 ```javascript
 {
@@ -188,7 +188,7 @@ window.addEventListener('message', function (event) {
 
 ### Сообщения:
 
-player:ready
+*player:ready*
 Плеер загружен готов к проигрыванию (отправляется один раз, при вставке плеера на страницу):
 ```javascript
 {
@@ -196,7 +196,8 @@ player:ready
 	type: 'player:ready'
 }
 ```
-player:changeState
+
+*player:changeState*
 Изменилось состояние поигрывания.
 Параметр:
 * state - текущее состояние плеера
@@ -215,7 +216,8 @@ player:changeState
 	type: 'player:changeState'
 }
 ```
-player:currentTime
+
+*player:currentTime*
 Информация о текущем времени проигрывания ролика.
 Параметры
 * time - текущее время проигрывания ролика, в секундах
@@ -227,7 +229,8 @@ player:currentTime
 	type: 'player:currentTime'
 }
 ```
-player:rollState
+
+*player:rollState*
 Информация о факте и статусе проигрывания рекламы в плеере.
 Параметры
 * rollState - тип проигрываемой рекламы
@@ -254,7 +257,7 @@ player:rollState
 }
 ```
 
-player:changeFullscreen
+*player:changeFullscreen*
 Переход/выход из фуллскрина
 ```javascript
 {
@@ -265,7 +268,7 @@ player:changeFullscreen
 }
 ```
 
-player:error
+*player:error*
 Ошибка во время проигрывания
 Параметры
 * code - код ошибки проигрывания
@@ -280,7 +283,7 @@ player:error
 }
 ```
 
-player:playComplete
+*player:playComplete*
 Событие окончания проигрывания (видео и рекламы). Переход плеера в эндскрин.
 ```javascript
 {
