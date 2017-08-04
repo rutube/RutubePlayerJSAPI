@@ -141,6 +141,18 @@ time - количество секунд для перемотки
 }
 ```
 
+*player:setVolume*
+Установка уровня звука
+```javascript
+{
+    type: 'player:setVolume',
+    data: {
+            volume: 0.20//значение от 0 до 1
+          }
+
+}
+```
+
 *player:setSkinColor*
 Изменить цветовую схему скина
 ```javascript
@@ -289,5 +301,18 @@ window.addEventListener('message', function (event) {
 {
 	data: {},
 	type: 'player:playComplete'
+}
+```
+
+*player:volumeChange*
+Информация о смене уровня звука.
+Параметры
+* volume - текущий уровень звука, от 0 до 1
+```javascript
+{
+    data: {
+        volume: 0.5
+    },
+    type: 'player:volumeChange'
 }
 ```
