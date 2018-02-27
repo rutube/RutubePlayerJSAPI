@@ -229,19 +229,31 @@ window.addEventListener('message', function (event) {
 }
 ```
 
+*player:durationChange*
+Обновление/уточнение длительности видео.
+Параметры
+* duration - длительности видео, в секундах
+```javascript
+{
+    data: {
+        duration: 50.5
+    },
+    type: 'player:durationChange'
+}
+```
+
 *player:currentTime*
 Информация о текущем времени проигрывания ролика.
 Параметры
 * time - текущее время проигрывания ролика, в секундах
 ```javascript
 {
-	data: {
-		time: 4.009
-	},
-	type: 'player:currentTime'
+    data: {
+        time: 4.009
+    },
+    type: 'player:currentTime'
 }
 ```
-
 *player:rollState*
 Информация о факте и статусе проигрывания рекламы в плеере.
 Параметры
